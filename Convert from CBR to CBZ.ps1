@@ -49,8 +49,7 @@ Function Get-ConfigurationFromJson {
     LogWrite "* Extension to work on: $($composedString)"
     LogWrite "***********************************"
     Write-Host ""
-    Write-Host "If ok press any key to continue..."
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    $null = Read-Host "If ok press Enter to continue..."
     return $configuration
 }
 
@@ -63,8 +62,7 @@ $configuration = Get-ConfigurationFromJson
 # work on 7zip path and check if exists
 if (-not (Test-Path -Path $configuration.zipPath -PathType Leaf)) {
     LogWrite "7 zip file '$($configuration.zipPath)' not found"
-    LogWrite -NoNewLine 'Press any key to continue...';
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    $null = Read-Host "Press any key to continue...";
     exit
 }
 Set-Alias 7zip $configuration.zipPath
@@ -105,10 +103,16 @@ foreach($file in $files){
         continue
     }
 
+    
     $GUID = New-Guid
     $tempDir = "$($file.Directory)\$GUID"
     $fileNameWithoutExtension = [System.IO.Path]::GetFileNameWithoutExtension($file)
     $cbzFile = "$($file.Directory)\$($fileNameWithoutExtension).cbz"
+
+    #if source and destination are the same append a (1)
+    if ($file.FullName -eq $cbzFile){
+        $cbzFile = "$($file.Directory)\$($fileNameWithoutExtension) (1).cbz"
+    }
     if (!(Test-Path -LiteralPath $tempDir)){
         New-Item -Path $tempDir -ItemType Directory -Force
     }
@@ -125,9 +129,9 @@ foreach($file in $files){
         }
 
         if ($configuration.removeComicInfoXml){
-            7zip a $cbzFile "$tempDir\*" -xr!"ComicInfo.xml"
+            7zip a $cbzFile "$tempDir\*" -xr!"ComicInfo.xml" -t"zip"
         } else {
-            7zip a $cbzFile "$tempDir\*"
+            7zip a $cbzFile "$tempDir\*" -t"zip"
         }
         
         if ($LASTEXITCODE -ne 0){
@@ -144,6 +148,6 @@ foreach($file in $files){
     Remove-Item -LiteralPath $tempDir -Confirm:$false -Force -Recurse | Out-Null
 }
 LogWrite "All done. Number of file converted: $count"
-LogWrite "Press any key to continue...";
-$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+$null = Read-Host "Press any key to continue...";
+#$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 
