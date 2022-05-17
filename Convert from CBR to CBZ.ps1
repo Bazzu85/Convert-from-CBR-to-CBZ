@@ -21,7 +21,7 @@ Function Get-ConfigurationFromJson {
         testing = $true;
         testingPath = "$PSScriptRoot\Test";
         zipPath = "$env:ProgramFiles\7-Zip\7z.exe";
-        deleteOriginalCbr = $false;
+        deleteOriginalFile = $false;
         removeComicInfoXml = $false;
         extensionList=@("cbr","cb7");
     }
@@ -36,7 +36,7 @@ Function Get-ConfigurationFromJson {
     LogWrite "* Testing flag: $($configuration.testing)"
     LogWrite "* Testing path: $($configuration.testingPath)"
     LogWrite "* 7zip path: $($configuration.zipPath)"
-    LogWrite "* Delete original CBR flag: $($configuration.deleteOriginalCbr)"
+    LogWrite "* Delete original File flag: $($configuration.deleteOriginalFile)"
     LogWrite "* Remove ComicInfo.xml: $($configuration.removeComicInfoXml)"
     $composedString = ""
     foreach ($extension in $configuration.extensionList){
@@ -121,7 +121,7 @@ foreach($file in $files){
 
     if ($LASTEXITCODE -eq 0){
         if ((Test-Path -LiteralPath "$cbzFile" -PathType Leaf)){
-            Remove-Item -Path $cbzFile -Confirm:$false -Force -Recurse | Out-Null
+            Remove-Item -LiteralPath $cbzFile -Confirm:$false -Force -Recurse | Out-Null
         }
 
         if ($configuration.removeComicInfoXml){
@@ -136,14 +136,14 @@ foreach($file in $files){
             LogWrite "Created CBZ file $cbzFile"
 
             $count++
-            if ($configuration.deleteOriginalCbr){
-                Remove-Item -Path $file -Confirm:$false -Force -Recurse | Out-Null
+            if ($configuration.deleteOriginalFile){
+                Remove-Item -LiteralPath $file -Confirm:$false -Force -Recurse | Out-Null
             }
         }
     }
-    Remove-Item -Path $tempDir -Confirm:$false -Force -Recurse | Out-Null
+    Remove-Item -LiteralPath $tempDir -Confirm:$false -Force -Recurse | Out-Null
 }
-LogWrite "All done. Number of CBR file converted: $count"
+LogWrite "All done. Number of file converted: $count"
 LogWrite "Press any key to continue...";
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 
